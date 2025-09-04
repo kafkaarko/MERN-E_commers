@@ -1,0 +1,13 @@
+NODE_ENV=localhost
+# port
+PORT=your_port #example PORT: 5000
+JWT_SECRET=your_JWT_secret
+BASE_URL=your_base_url #example: http://localhost:PORT
+
+# databse
+# if use nosql
+MON_URI=your_mongodb_connection_string
+
+# if use sql
+# npm install prisma @prisma/client 
+
