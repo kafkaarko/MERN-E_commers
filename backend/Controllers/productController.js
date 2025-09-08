@@ -85,7 +85,7 @@ const getProductByCategory = async (req, res) => {
 const createProduct = async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
-        const image = req.file ? `/Uploads/product/${req.file.filename}` : null;
+        const image = req.file ? `/Uploads/products/${req.file.filename}` : null;
         const user = await UserModel.findById(req.user.id)
         if(user.role !== 'seller') return errorResponse(res, "you cannot add product",null)
         const store = await Store.find({ownerId:req.user.id})
@@ -119,7 +119,7 @@ const updateProduct = async (req, res) => {
     try {
         const { id } = req.params
         const { name, description, price, stock, category } = req.body;
-        const image = req.file ? `/Uploads/product${req.file.filename}` : null;
+        const image = req.file ? `/Uploads/products/${req.file.filename}` : null;
 
         const product = await Product.findById({ _id: id })
         if (!product) return errorResponse(res, "product not found", null)
