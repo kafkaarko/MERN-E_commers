@@ -35,7 +35,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
     try {
         const { id } = req.params
-        const product = await Product.findById({ _id: id }).populate("category");
+        const product = await Product.findById({ _id: id }).populate("category").populate({path: "storeId", select: "name"});
         if (!product) return errorResponse(res, "no product in there", null)
         // if (!mongoose.Types.ObjectId.isValid(id)) {
         //         return errorResponse(res, "there no product",null)
@@ -60,7 +60,7 @@ const getProductById = async (req, res) => {
 const getProductByCategory = async (req, res) => {
     try {
         const { id } = req.params
-        const product = await Product.find({ category: id }).populate("category")
+        const product = await Product.find({ category: id }).populate("category").populate({path: "storeId", select: "name"})
         if (!product) return errorResponse(res, "no product in there", null)
         // if (!mongoose.Types.ObjectId.isValid(id)) {
         //         return errorResponse(res, "there no product",null)
