@@ -48,6 +48,7 @@ const getProductById = async (req, res) => {
             price: product.price,
             stock: product.stock,
             category: product.category,
+            storeId: product.storeId,
             img_url: product.img_url ? cleanImageUrl(base, product.img_url) : null
         })
         return successResponse(res, "successfully to get prodcut by id", productWithImageUrl)
@@ -73,6 +74,7 @@ const getProductByCategory = async (req, res) => {
             description: p.description,
             price: p.price,
             stock: p.stock,
+            storeId: p.storeId,
             img_url: p.img_url ? cleanImageUrl(base, p.img_url) : null
         }))
         return successResponse(res, "successfully to get category by category", productWithImageUrl)
