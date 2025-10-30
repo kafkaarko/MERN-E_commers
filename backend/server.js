@@ -23,8 +23,10 @@ const PORT = process.env.PORT
 app.use(cookieParser());
 app.use(express.json())//agar bisa mengirim inputan
 app.use(express.urlencoded({ extended: true }))
-app.use(cors())//agar bisa ke frontend
-
+app.use(cors({
+    origin: process.env.API_FE_URL || "http://localhost:3000",
+    credentials:true
+}))//agar bisa ke frontend
 app.use("/uploads", express.static(path.join(process.cwd(), "Uploads")))
 
 

@@ -32,6 +32,11 @@ const orderSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref:"payment",
         required: true
+    },
+    checkoutCart:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"cart",
+        required: true
     }
 }, {timestamps: true})
 

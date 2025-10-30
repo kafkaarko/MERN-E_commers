@@ -6,6 +6,7 @@ const cookieOptions = (req) =>{
         secure:isProduction && req.hostname !== "localhost",
         sameSite: "Strict",
         path: "/",
+        sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000 //satu hari
     }
 }

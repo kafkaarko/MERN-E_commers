@@ -14,6 +14,23 @@ const getAllCart = async (req, res) => {
 
     return successResponse(res, "success to get cart", cart)
 }
+const getAllCartById = async (req, res) => {
+    try {
+        
+        let { ids } = req.query;
+        if(!ids) return errorResponse(res, "ids query is required", null);
+    
+        //ubah menjadi parse array
+        ids = JSON.parse(ids)
+        const carts = await Cart.find(
+            {_id:{$in: ids} ,userId: req.user.id }
+        )
+            .populate("items.productId");
+        return successResponse(res, "success search cart by item", carts);
+    } catch (error) {
+        return errorResponse(res, "something wrong", { message: error.message })
+    }
+}
 
 const addToCart = async (req, res) => {
     const { items } = req.body
@@ -90,26 +107,26 @@ const deleteCart = async (req, res) => {
 }
 
 const checkout = async (req, res) => {
-    const { id } = req.params
-    const { method, shippingAddress, } = req.body
+    const { cartsId, method, shippingAddress, } = req.body
 
-    const cart = await Cart.findById({ _id: id }).populate("items.productId")
-    if (!cart) return errorResponse(res, "cart not found", null)
+    const carts = await Cart.find({ _id: {$in: cartsId} }).populate("items.productId")
+    if (!carts.length) return errorResponse(res, "cart not found", null)
 
+        let orderItemsData = []
     try {
 
-        const orderItemsData = cart.items.map((c) => {
-            // const product =  Product.find((p) => p._id.toString() === c.productId._id.toString())
-            //mencari product id yang sama di dalam cart
-            const subTotal = c.productId.price * c.quantity
-
-            return ({
-                productId: c.productId._id,
-                quantity: c.quantity,
-                price: c.productId.price,
-                subTotal
+        carts.forEach(cart => {
+             cart.items.forEach((c) => {
+                //mencari product id yang sama di dalam cart
+                const subTotal = c.productId.price * c.quantity
+                orderItemsData.push({
+                    productId: c.productId._id,
+                    quantity: c.quantity,
+                    price: c.productId.price,
+                    subTotal
+                })
             })
-        })
+        });
 
         const orderItems = await OrderItems.insertMany(orderItemsData) //masukan
 
@@ -124,7 +141,8 @@ const checkout = async (req, res) => {
             shippingAddress,
             orderItemsId: orderItems.map((oi) => oi._id),
             total_price: totalPrice,
-            paymentId: payment._id
+            paymentId: payment._id,
+            checkoutCart: cartsId
         })
         await Promise.all(orderItems.map(async (item) => {
             const prod = await Product.findById(item.productId);
@@ -137,12 +155,13 @@ const checkout = async (req, res) => {
 
             await prod.save();
         }));
-        cart = [];
-        await cart.save();
-
+        
+        await Cart.updateMany(
+            {_id: {$in: cartsId} },
+            { $set: { items: [] } }
+        );
 
         //buat agar stok berkurang saat di buat orderannya
-
 
         return successResponse(res, "success to checkout", order)
     } catch (error) {
@@ -152,9 +171,9 @@ const checkout = async (req, res) => {
 }
 
 const getChekoutUserById = async (req, res) => {
-    const order = await Order.find({ userId: req.user.id }).populate(['userId', 'orderItemsId', 'paymentId']).select("-password")
+    const order = await Order.find({ userId: req.user.id }).populate(['userId', 'orderItemsId', 'paymentId', 'checkoutCart']).select("-password")
     return successResponse(res, "success to get chekout by id", order)
 }
 
 
-module.exports = { getAllCart, addToCart, editCart, deleteCart, checkout, getChekoutUserById }
+module.exports = { getAllCart, addToCart, editCart, deleteCart, checkout, getChekoutUserById, getAllCartById }
